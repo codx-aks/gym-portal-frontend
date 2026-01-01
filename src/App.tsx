@@ -6,6 +6,7 @@ import SlotSelectionScreen from './components/SlotSelectionScreen.tsx';
 import SuccessScreen from './components/SuccessScreen.tsx';
 import Callback from './components/Callback.tsx';
 import PrivateRoute from './components/PrivateRoute.tsx';
+import Metrics from './components/metrics.tsx';
 
 const App: React.FC = () => {
   return (
@@ -34,6 +35,14 @@ const App: React.FC = () => {
           element={
             <PrivateRoute>
               <SuccessScreen />
+            </PrivateRoute>
+          }
+        />
+        <Route 
+          path="/metrics"
+          element={
+            <PrivateRoute>
+              <Metrics />
             </PrivateRoute>
           }
         />
