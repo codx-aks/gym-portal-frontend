@@ -20,22 +20,6 @@ export const COLORS = {
     },
 };
 
-export const INITIAL_SLOTS_SWIM: TimeSlot[] = [
-    { id: 's1', timeRange: '06:00 AM – 07:00 AM', availability: 'LOW', type: 'Lap Swim' },
-    { id: 's2', timeRange: '07:00 AM – 08:00 AM', availability: 'MEDIUM', type: 'Lap Swim' },
-    { id: 's3', timeRange: '05:00 PM – 06:00 PM', availability: 'HIGH', type: 'Leisure & Laps' },
-    { id: 's4', timeRange: '06:00 PM – 07:00 PM', availability: 'HIGH', type: 'Diving Well' },
-    { id: 's5', timeRange: '08:00 PM – 09:00 PM', availability: 'HIGH', type: 'Leisure Swim' },
-];
-
-export const INITIAL_SLOTS_GYM: TimeSlot[] = [
-    { id: 'g1', timeRange: '05:30 AM – 07:00 AM', availability: 'LOW', type: 'Cardio & Strength' },
-    { id: 'g2', timeRange: '07:00 AM – 08:30 AM', availability: 'MEDIUM', type: 'Free Weights' },
-    { id: 'g3', timeRange: '05:00 PM – 06:30 PM', availability: 'HIGH', type: 'CrossFit Zone' },
-    { id: 'g4', timeRange: '06:30 PM – 08:00 PM', availability: 'HIGH', type: 'General Access' },
-    { id: 'g5', timeRange: '08:00 PM – 09:30 PM', availability: 'HIGH', type: 'Strength' },
-];
-
 export const QUOTES = {
     [SportType.SWIMMING]: [
         "The water doesn't know your age. It only knows your effort.",

@@ -1,4 +1,5 @@
 import React from 'react';
+import logo from '../assets/logo.png';
 
 interface HeaderProps {
     isLoggedIn: boolean;
@@ -23,8 +24,15 @@ const Header: React.FC<HeaderProps> = ({ isLoggedIn, onLogin, onLogout, variant 
                 WebkitBackdropFilter: 'blur(12px)',
             }}
         >
-            <div className={`${textColor} font-bold tracking-wider text-xl uppercase`}>
-                SPORTS COUNCIL
+            <div className="flex items-center gap-3">
+                <img 
+                    src={logo} 
+                    alt="Sports Council Logo" 
+                    className="h-8 w-auto object-contain"
+                />
+                <div className={`${textColor} font-bold tracking-wider text-xl uppercase`}>
+                    SPORTS COUNCIL
+                </div>
             </div>
             <button
                 onClick={isLoggedIn ? onLogout : onLogin}

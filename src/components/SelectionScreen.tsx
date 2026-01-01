@@ -1,23 +1,82 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Waves, ChevronRight, BicepsFlexed } from 'lucide-react';
 import { SportType } from '../../types.ts';
 import { COLORS } from '../../constants.ts';
+import { API_BASE_URL } from '../config.ts';
+import type { StatusResponse } from '../../types.ts';
 import Header from './Header';
 import Gym from '../assets/gym.jpg';
 import Swim from '../assets/swim.jpeg';
+import { useAuth } from '../contexts/AuthContext.tsx';
 
-interface SelectionScreenProps {
-    onSelectSport: (sport: SportType) => void;
-    userName?: string;
-    onLogout?: () => void;
-}
-
-const SelectionScreen: React.FC<SelectionScreenProps> = ({ onSelectSport, onLogout }) => {
+const SelectionScreen: React.FC = () => {
+    const navigate = useNavigate();
+    const { logout } = useAuth();
     const [hovered, setHovered] = useState<SportType | null>(null);
+    const [gymStatus, setGymStatus] = useState<StatusResponse | null>(null);
+    const [swimStatus, setSwimStatus] = useState<StatusResponse | null>(null);
+    const [loadingStatus, setLoadingStatus] = useState(true);
+
+    // Check status for both sports on mount
+    useEffect(() => {
+        const checkStatuses = async () => {
+            try {
+                // Check gym status
+                const gymResponse = await fetch(`${API_BASE_URL}/status/gymslot`, {
+                    credentials: 'include',
+                });
+                if (gymResponse.ok) {
+                    const gymData: StatusResponse = await gymResponse.json();
+                    // If status exists (not empty), user has registered
+                    if (gymData.status !== '' || gymData.final_slot) {
+                        setGymStatus(gymData);
+                    }
+                }
+
+                // Check swim status
+                const swimResponse = await fetch(`${API_BASE_URL}/status/swimslot`, {
+                    credentials: 'include',
+                });
+                if (swimResponse.ok) {
+                    const swimData: StatusResponse = await swimResponse.json();
+                    // If status exists (not empty), user has registered
+                    if (swimData.status !== '' || swimData.final_slot) {
+                        setSwimStatus(swimData);
+                    }
+                }
+            } catch (err) {
+                // Silently fail - user might not have registered yet
+                console.error('Error checking status:', err);
+            } finally {
+                setLoadingStatus(false);
+            }
+        };
+
+        checkStatuses();
+    }, []);
+
+    const handleSelectSport = (sport: SportType) => {
+        // Check if user has status (allocated or pending) for this sport
+        const status = sport === SportType.GYM ? gymStatus : swimStatus;
+        
+        if (status && (status.status !== '' || status.final_slot)) {
+            // Navigate to success screen if allocated or pending
+            navigate(`/success/${sport.toLowerCase()}`);
+        } else {
+            // Navigate to slot selection if not registered
+            navigate(`/slots/${sport.toLowerCase()}`);
+        }
+    };
+
+    const handleLogout = () => {
+        logout();
+        navigate('/');
+    };
 
     return (
         <div className="relative w-full h-screen flex flex-col overflow-hidden">
-            <Header isLoggedIn={true} onLogout={onLogout} variant="dark" />
+            <Header isLoggedIn={true} onLogout={handleLogout} variant="dark" />
             <div className="w-full h-screen flex flex-col bg-gray-50 overflow-hidden">
 
                 <div className="flex-1 flex flex-col md:flex-row relative">
@@ -25,7 +84,7 @@ const SelectionScreen: React.FC<SelectionScreenProps> = ({ onSelectSport, onLogo
                         className={`relative flex-1 cursor-pointer transition-all duration-700 ease-out overflow-hidden group ${hovered === SportType.SWIMMING ? 'flex-[0.8]' : 'flex-1'}`}
                         onMouseEnter={() => setHovered(SportType.GYM)}
                         onMouseLeave={() => setHovered(null)}
-                        onClick={() => onSelectSport(SportType.GYM)}
+                        onClick={() => handleSelectSport(SportType.GYM)}
                     >
                         <div className="absolute inset-0 bg-gray-900">
                             <img
@@ -45,7 +104,9 @@ const SelectionScreen: React.FC<SelectionScreenProps> = ({ onSelectSport, onLogo
 
                             <div className="mt-8 opacity-0 group-hover:opacity-100 transition-all duration-500 delay-200">
                                 <span className="flex items-center text-white font-bold uppercase tracking-widest border-b-2 border-white pb-1 text-lg">
-                                    Select Slot Preferences <ChevronRight size={16} className="ml-2" />
+                                    {gymStatus && (gymStatus.status !== '' || gymStatus.final_slot) 
+                                        ? 'Check Allocation' 
+                                        : 'Select Slot Preferences'} <ChevronRight size={16} className="ml-2" />
                                 </span>
                             </div>
                         </div>
@@ -57,7 +118,7 @@ const SelectionScreen: React.FC<SelectionScreenProps> = ({ onSelectSport, onLogo
                         className={`relative flex-1 cursor-pointer transition-all duration-700 ease-out overflow-hidden group ${hovered === SportType.GYM ? 'flex-[0.8]' : 'flex-1'}`}
                         onMouseEnter={() => setHovered(SportType.SWIMMING)}
                         onMouseLeave={() => setHovered(null)}
-                        onClick={() => onSelectSport(SportType.SWIMMING)}
+                        onClick={() => handleSelectSport(SportType.SWIMMING)}
                     >
                         <div className="absolute inset-0 bg-gray-900">
                             <img
@@ -78,7 +139,9 @@ const SelectionScreen: React.FC<SelectionScreenProps> = ({ onSelectSport, onLogo
 
                             <div className="mt-8 opacity-0 group-hover:opacity-100 transition-all duration-500 delay-200">
                                 <span className="flex items-center text-white font-bold uppercase tracking-widest text-lg border-b-2 border-white pb-1">
-                                    Select Slot Preferences <ChevronRight size={16} className="ml-2" />
+                                    {swimStatus && (swimStatus.status !== '' || swimStatus.final_slot) 
+                                        ? 'Check Allocation' 
+                                        : 'Select Slot Preferences'} <ChevronRight size={16} className="ml-2" />
                                 </span>
                             </div>
                         </div>
